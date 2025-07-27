@@ -1,5 +1,7 @@
-const ROW_COUNT = 50;
+let ROW_COUNT = 50;
 const COL_COUNT = 30;
+const FIELD_ITEM_HEIGHT = 20;
+const FIELD_ITEM_WIDTH = 40;
 const navbarElements = ["Home", "Insert", "Draw", "Page Layout", "Formulas", "Data", "Review", "View", "Automate", "Developer"];
 const keysToIgnore = ["Enter", "Escape", "Meta", "Shift", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
 const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
@@ -10,11 +12,11 @@ let stoppingCell = 0;
 let currentRow = 0;
 let currentCol = 0;
 
-function createMap(){
+function createMap(rowCount){
     const container = document.querySelector('.board-container');
     const headerRowValues = createHeaderRowValues(COL_COUNT);
-    const headerColumnValues = createHeaderColumnValues(ROW_COUNT);
-    for(let i = 0; i < ROW_COUNT; i++){
+    const headerColumnValues = createHeaderColumnValues(rowCount);
+    for(let i = 0; i < rowCount; i++){
         const rowContainer = document.createElement('div');
         rowContainer.classList.add('row-item');
         rowContainer.id = `row-${i}`;
@@ -44,7 +46,6 @@ function createMap(){
                 const [row, col] = fieldItem.id.split(",");
                 currentRow = row;
                 currentCol = col;
-
             });
             fieldItem.addEventListener("mouseleave", () => {
                 const [row, col] = fieldItem.id.split(",");
@@ -54,7 +55,7 @@ function createMap(){
             });
             fieldItem.addEventListener("mouseup", () => {
                 stoppingCell = fieldItem;
-                visualizeMulticellSelection(startingCell, stoppingCell);
+                // visualizeMulticellSelection(startingCell, stoppingCell);
             });
             rowContainer.append(fieldItem);
         }
@@ -119,6 +120,9 @@ function selectCell(item){
 }
 
 function insertIntoCell(value){
+    if(currentCol == 0 || currentRow == 0){
+        return;
+    }
     const selectedCell = document.getElementById(currentRow + "," + currentCol);
     filledCells.push(selectedCell);
     selectedCell.innerHTML += value;
@@ -205,5 +209,7 @@ document.addEventListener("keydown", (event) => {
 
 document.addEventListener("DOMContentLoaded", () => {
     createNavbar();
-    createMap();
+    const rowCount = (window.innerHeight * .8 / FIELD_ITEM_HEIGHT);
+    ROW_COUNT = rowCount;
+    createMap(Math.floor(rowCount));
 });
