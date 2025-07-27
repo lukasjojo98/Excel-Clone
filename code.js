@@ -1,7 +1,8 @@
 const ROW_COUNT = 50;
 const COL_COUNT = 30;
 const navbarElements = ["Home", "Insert", "Draw", "Page Layout", "Formulas", "Data", "Review", "View", "Automate", "Developer"];
-const keysToIgnore = ["Enter", "Escape", "Meta", "Shift", "ArrowLeft", "ArrowRigh", "ArrowUp", "ArrowDown"];
+const keysToIgnore = ["Enter", "Escape", "Meta", "Shift", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
 const filledCells = [];
 const expressions = [];
 let currentRow = 0;
@@ -106,8 +107,6 @@ function parseExpression(expression, cell){
     if(cell){
         selectedCell = cell;
     }
-
-    if(functionType === "SUM"){
         const operandsValues = [];
         for(let i = 0; i < operands.length; i++){
             const operand = operands[i];
@@ -117,11 +116,10 @@ function parseExpression(expression, cell){
             operandsValues.push(parseFloat(element.innerHTML));
         }
         selectedCell.innerHTML = operandsValues[0] + operandsValues[1];
-    }
 }
 
-function checkExpression(expression){
-    parseExpression(expression);
+function checkExpression(expression, cell){
+    parseExpression(expression, cell);
     
 }
 
@@ -129,6 +127,29 @@ document.addEventListener("keydown", (event) => {
     const value = event.key;
     if(!keysToIgnore.includes(value)){
         insertIntoCell(value);
+    }
+    if(navigationKeys.includes(value)){
+        if(value === "ArrowUp"){
+            currentRow = (currentRow > 1) ? currentRow - 1 : currentRow;
+            const selectedCell = document.getElementById(currentRow + "," + currentCol);
+            selectCell(selectedCell);
+        }
+        else if(value === "ArrowDown"){
+            currentRow = (currentRow < (ROW_COUNT - 1)) ? parseInt(currentRow) + 1 : currentRow;
+            const selectedCell = document.getElementById(currentRow + "," + currentCol);
+            selectCell(selectedCell);
+        }
+        else if(value === "ArrowRight"){
+            currentCol = (currentCol < (COL_COUNT - 1)) ? parseInt(currentCol) + 1 : currentCol;
+            const selectedCell = document.getElementById(currentRow + "," + currentCol);
+            selectCell(selectedCell);
+        }
+        else if(value === "ArrowLeft"){
+            currentCol = (currentCol > 1) ? parseInt(currentCol) - 1 : currentCol;
+            const selectedCell = document.getElementById(currentRow + "," + currentCol);
+            selectCell(selectedCell);
+        }
+        return;
     }
     if(value === "Backspace"){
         emptyCurrentCell();
@@ -144,9 +165,9 @@ document.addEventListener("keydown", (event) => {
             checkExpression(expression, null);
         }
         else {
-            // for(let i = 0; i < expressions.length; i++){
-            //     checkExpression(expressions[i].expression, expressions[i].cell);
-            // }    
+            for(let i = 0; i < expressions.length; i++){
+                checkExpression(expressions[i].expression, expressions[i].cell);
+            }    
         }
     }
 });
