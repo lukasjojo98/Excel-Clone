@@ -5,6 +5,8 @@ const keysToIgnore = ["Enter", "Escape", "Meta", "Shift", "ArrowLeft", "ArrowRig
 const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
 const filledCells = [];
 const expressions = [];
+let startingCell = 0;
+let stoppingCell = 0;
 let currentRow = 0;
 let currentCol = 0;
 
@@ -38,9 +40,38 @@ function createMap(){
             fieldItem.addEventListener("click", () => {
                 selectCell(fieldItem);
             });
+            fieldItem.addEventListener("mousedown", () => {
+                const [row, col] = fieldItem.id.split(",");
+                currentRow = row;
+                currentCol = col;
+
+            });
+            fieldItem.addEventListener("mouseleave", () => {
+                const [row, col] = fieldItem.id.split(",");
+                if(row == currentRow && col == currentCol){
+                    startingCell = fieldItem;
+                }
+            });
+            fieldItem.addEventListener("mouseup", () => {
+                stoppingCell = fieldItem;
+                visualizeMulticellSelection(startingCell, stoppingCell);
+            });
             rowContainer.append(fieldItem);
         }
         container.append(rowContainer);
+    }
+}
+
+function visualizeMulticellSelection(startingCell, stoppingCell){
+    const fieldItems = document.querySelectorAll('.field-item-clickable');
+    const [startingRow, startingCol] = startingCell.id.split(",");
+    const [stoppingRow, stoppingCol] = stoppingCell.id.split(",");
+    for(let i = 0; i < fieldItems.length; i++){
+        const [row, col] = fieldItems[i].id.split(",");
+        if((row >= startingRow && row <= stoppingRow) && (col >= startingCol && col <= stoppingCol)){
+            fieldItems[i].classList.remove('field-item-clickable');
+            fieldItems[i].classList.add('field-item-multiselected');
+        }
     }
 }
 
